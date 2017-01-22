@@ -78,6 +78,7 @@ WSGI_APPLICATION = 'airbnb.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
 SPATIALITE_LIBRARY_PATH = 'mod_spatialite'
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.contrib.gis.db.backends.spatialite',
