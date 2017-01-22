@@ -13,7 +13,6 @@ class Listing(models.Model):
     listing_url = models.CharField(max_length=512)
     scrape_id = models.BigIntegerField()
     last_scraped = models.DateField()
-    summary = models.TextField()
     description = models.TextField()
     host_id = models.BigIntegerField()
     host_name = models.CharField(max_length=512)
