@@ -19,7 +19,8 @@ class Listing(models.Model):
     host_since = models.DateField()
     host_is_superhost = models.BooleanField()
     host_identity_verified = models.BooleanField()
-    neighbourhood_cleansd = models.CharField(max_length=512)
+    neighborhood = models.ForeignKey(Neighborhood, null=True)
+    neighbourhood_cleansed = models.CharField(max_length=512)
     property_type = models.CharField(max_length=512)
     room_type = models.CharField(max_length=512)
     accommodates = models.IntegerField()
@@ -32,5 +33,6 @@ class Listing(models.Model):
     availability_365 = models.IntegerField()
     number_of_reviews = models.IntegerField()
     reviews_per_month = models.FloatField()
+    street = models.CharField(max_length=512)
     def __str__(self):
         return self.name
