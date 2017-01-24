@@ -5,6 +5,8 @@ class Neighborhood(models.Model):
     mpoly = models.MultiPolygonField()
     def __str__(self):
         return self.name
+    class Meta:
+        ordering = ['name']
 
 class Listing(models.Model):
     id = models.BigIntegerField(primary_key=True)
@@ -35,4 +37,4 @@ class Listing(models.Model):
     reviews_per_month = models.FloatField()
     street = models.CharField(max_length=512)
     def __str__(self):
-        return self.name
+        return "%d %s ($%.2f)" %  (self.pk, self.name, self.price)
