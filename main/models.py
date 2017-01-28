@@ -1,13 +1,17 @@
 from django.contrib.gis.db import models
 
 class Zipcode(models.Model):
-    zipcode = models.CharField(max_length=5)
+    zipcode = models.CharField(max_length=5, unique=True)
+    area_land = models.BigIntegerField() # in m^2
+    area_water = models.BigIntegerField() # in m^2
     mpoly = models.MultiPolygonField()
     def __str__(self):
         return self.zipcode
 
 class BlockGroup(models.Model):
-    geoid = models.CharField(max_length=12)
+    geoid = models.CharField(max_length=12, unique=True)
+    area_land = models.BigIntegerField() # in m^2
+    area_water = models.BigIntegerField() # in m^2
     mpoly = models.MultiPolygonField()
     def __str__(self):
         return self.geoid

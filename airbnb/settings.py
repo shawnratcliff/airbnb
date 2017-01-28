@@ -79,13 +79,21 @@ WSGI_APPLICATION = 'airbnb.wsgi.application'
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
 SPATIALITE_LIBRARY_PATH = 'mod_spatialite'
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.contrib.gis.db.backends.spatialite',
+#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+#     }
+# }
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.contrib.gis.db.backends.spatialite',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
+        'NAME': 'airbnb',
+        'USER': 'airbnbuser',
+        'PASSWORD': '191project',
+    },
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/1.10/ref/settings/#auth-password-validators
