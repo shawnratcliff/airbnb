@@ -1,16 +1,18 @@
 from django.contrib.gis.db import models
 
 class Zipcode(models.Model):
-    zipcode = models.CharField(max_length=5, unique=True)
+    geoid = models.CharField(max_length=5, primary_key=True)
     land_area = models.FloatField() # in m^2
     water_area = models.FloatField() # in m^2
     mpoly = models.MultiPolygonField()
     def __str__(self):
         return self.zipcode
-
+    @property
+    def zipcode(self):
+        return self.geoid
 
 class BlockGroup(models.Model):
-    geoid = models.CharField(max_length=12, unique=True)
+    geoid = models.CharField(max_length=12, primary_key=True)
     land_area = models.FloatField() # in m^2
     water_area = models.FloatField() # in m^2
     mpoly = models.MultiPolygonField()
@@ -28,7 +30,12 @@ class Neighborhood(models.Model):
 class Listing(models.Model):
     id = models.BigIntegerField(primary_key=True)
     name = models.TextField()
+    # Geo fields
+    neighborhood = models.ForeignKey(Neighborhood, null=True)
+    zipcode = models.ForeignKey(Zipcode, null=True)
+    block_group = models.ForeignKey(BlockGroup, null=True)
     point = models.PointField()
+    # Data fields
     listing_url = models.CharField(max_length=512)
     scrape_id = models.BigIntegerField()
     last_scraped = models.DateField()
@@ -38,7 +45,6 @@ class Listing(models.Model):
     host_since = models.DateField()
     host_is_superhost = models.BooleanField()
     host_identity_verified = models.BooleanField()
-    neighborhood = models.ForeignKey(Neighborhood, null=True)
     neighbourhood_cleansed = models.CharField(max_length=512)
     property_type = models.CharField(max_length=512)
     room_type = models.CharField(max_length=512)
