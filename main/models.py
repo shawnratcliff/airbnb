@@ -1,10 +1,12 @@
 from django.contrib.gis.db import models
+from django.contrib.postgres.fields import JSONField
 
 class Zipcode(models.Model):
     geoid = models.CharField(max_length=5, primary_key=True)
     land_area = models.FloatField() # in m^2
     water_area = models.FloatField() # in m^2
     mpoly = models.MultiPolygonField()
+    data = JSONField(default=dict)
     def __str__(self):
         return self.zipcode
     @property
@@ -16,12 +18,14 @@ class BlockGroup(models.Model):
     land_area = models.FloatField() # in m^2
     water_area = models.FloatField() # in m^2
     mpoly = models.MultiPolygonField()
+    data = JSONField(default=dict)
     def __str__(self):
         return self.geoid
 
 class Neighborhood(models.Model):
     name = models.CharField(max_length=512, unique=True)
     mpoly = models.MultiPolygonField()
+    data = JSONField(default=dict)
     def __str__(self):
         return self.name
     class Meta:
