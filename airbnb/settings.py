@@ -41,18 +41,13 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.gis',
     'django_extensions',
-    'rest_framework',
-    'rest_framework_gis',
+    'dbbackup'
     'main',
-    'api',
 ]
 
-REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.AllowAny',
-    ],
-    'PAGE_SIZE': 10
-}
+# Django DBBACKUP Settings
+DBBACKUP_STORAGE = 'dbbackup.storage.filesystem_storage'
+DBBACKUP_STORAGE_OPTIONS = {'location': 'backups'}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
