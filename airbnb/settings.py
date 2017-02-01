@@ -41,8 +41,13 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.gis',
     'django_extensions',
+    'dbbackup'
     'main',
 ]
+
+# Django DBBACKUP Settings
+DBBACKUP_STORAGE = 'dbbackup.storage.filesystem_storage'
+DBBACKUP_STORAGE_OPTIONS = {'location': 'backups'}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

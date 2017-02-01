@@ -1,3 +1,6 @@
+# Backups
+backups/
+
 # PyCharm
 .idea/
 .idea/workspace.xml
