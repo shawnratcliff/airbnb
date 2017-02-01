@@ -31,6 +31,26 @@ class Neighborhood(models.Model):
     class Meta:
         ordering = ['name']
 
+class Crime(models.Model):
+    # Geo fields
+    neighborhood = models.ForeignKey(Neighborhood, null=True)
+    zipcode = models.ForeignKey(Zipcode, null=True)
+    block_group = models.ForeignKey(BlockGroup, null=True)
+    point = models.PointField()
+
+    report_number = models.BigIntegerField() # NOT UNIQUE
+    date_reported = models.DateField()
+    date_occurred = models.DateTimeField()
+    crime_code = models.IntegerField()
+    crime_code_desc = models.TextField(max_length=512)
+    def __str__(self):
+        return "%s (%s %s) %d" % (
+            self.crime_code_desc,
+            self.neighborhood.name,
+            self.zipcode.geoid,
+            self.report_number
+        )
+
 class Listing(models.Model):
     id = models.BigIntegerField(primary_key=True)
     name = models.TextField()
