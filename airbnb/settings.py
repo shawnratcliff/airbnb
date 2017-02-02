@@ -47,6 +47,14 @@ INSTALLED_APPS = [
     'main',
 ]
 
+# DRF Settings
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
+    ],
+    'PAGE_SIZE': 10
+}
+
 # Django DBBACKUP Settings
 DBBACKUP_STORAGE = 'django.core.files.storage.FileSystemStorage'
 DBBACKUP_STORAGE_OPTIONS = {'location': 'backups'}
@@ -99,6 +107,7 @@ DATABASES = {
         'NAME': 'airbnb',
         'USER': 'airbnbuser',
         'PASSWORD': '191project',
+        'HOST': 'localhost'
     },
 }
 
