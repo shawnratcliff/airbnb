@@ -29,3 +29,17 @@ Check that the virtual env is working properly:
 
     source ./venv/bin/activate 
     
+### Step 4: Install Postgres.app and create database (local machines only)
+
+This project requires access to a PostgreSQL server. For a local Windows or Mac development machine, the simplest option is to install Postgres.app, which includes the extensions necessary for this project. Remember to set your PATH environment variable as described in the [installation instructions](https://postgresapp.com/). If you are working on the shared server, a database is already available and populated; in this case, skip steps 4 and 5.
+
+After Postgres.app is installed, open psql and create a user and empty database as follows:
+
+    CREATE DATABASE airbnb;
+    CREATE USER airbnbuser;
+    ALTER USER airbnbuser WITH superuser;
+    ALTER USER airbnbuser WITH password '191project';
+    GRANT ALL PRIVILEGES ON DATABASE airbnb TO airbnbuser;
+    \q
+
+### Step 5: Restore database contents from backup (local machines only)
