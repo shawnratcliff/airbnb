@@ -5,7 +5,7 @@ class Zipcode(models.Model):
     geoid = models.CharField(max_length=5, primary_key=True)
     land_area = models.FloatField() # in m^2
     water_area = models.FloatField() # in m^2
-    mpoly = models.MultiPolygonField()
+    mpoly = models.MultiPolygonField(spatial_index=True)
     data = JSONField(default=dict)
     def __str__(self):
         return self.zipcode
@@ -17,14 +17,14 @@ class BlockGroup(models.Model):
     geoid = models.CharField(max_length=12, primary_key=True)
     land_area = models.FloatField() # in m^2
     water_area = models.FloatField() # in m^2
-    mpoly = models.MultiPolygonField()
+    mpoly = models.MultiPolygonField(spatial_index=True)
     data = JSONField(default=dict)
     def __str__(self):
         return self.geoid
 
 class Neighborhood(models.Model):
     name = models.CharField(max_length=512, unique=True)
-    mpoly = models.MultiPolygonField()
+    mpoly = models.MultiPolygonField(spatial_index=True)
     data = JSONField(default=dict)
     def __str__(self):
         return self.name
@@ -33,10 +33,10 @@ class Neighborhood(models.Model):
 
 class Crime(models.Model):
     # Geo fields
-    neighborhood = models.ForeignKey(Neighborhood, null=True)
-    zipcode = models.ForeignKey(Zipcode, null=True)
-    block_group = models.ForeignKey(BlockGroup, null=True)
-    point = models.PointField()
+    neighborhood = models.ForeignKey(Neighborhood, db_index=True, null=True)
+    zipcode = models.ForeignKey(Zipcode, db_index=True, null=True)
+    block_group = models.ForeignKey(BlockGroup, db_index=True, null=True)
+    point = models.PointField(spatial_index=True)
 
     report_number = models.BigIntegerField() # NOT UNIQUE
     date_reported = models.DateField()
@@ -55,10 +55,10 @@ class Listing(models.Model):
     id = models.BigIntegerField(primary_key=True)
     name = models.TextField()
     # Geo fields
-    neighborhood = models.ForeignKey(Neighborhood, null=True)
-    zipcode = models.ForeignKey(Zipcode, null=True)
-    block_group = models.ForeignKey(BlockGroup, null=True)
-    point = models.PointField()
+    neighborhood = models.ForeignKey(Neighborhood, db_index=True, null=True)
+    zipcode = models.ForeignKey(Zipcode, db_index=True, null=True)
+    block_group = models.ForeignKey(BlockGroup, db_index=True, null=True)
+    point = models.PointField(spatial_index=True)
     # Data fields
     listing_url = models.CharField(max_length=512)
     scrape_id = models.BigIntegerField()
