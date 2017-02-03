@@ -44,7 +44,7 @@ class Crime(models.Model):
     crime_code = models.IntegerField()
     crime_code_desc = models.TextField(max_length=512)
     def __str__(self):
-        return "%s (%s %s) %d" % (
+        return "%s (%s %s) %s" % (
             self.crime_code_desc,
             self.neighborhood.name,
             self.zipcode.geoid,
@@ -84,4 +84,4 @@ class Listing(models.Model):
     reviews_per_month = models.FloatField()
     street = models.CharField(max_length=512)
     def __str__(self):
-        return "%d %s ($%.2f)" %  (self.pk, self.name, self.price)
+        return "%s %s ($%.2f)" %  (self.pk, self.name, self.price)
