@@ -83,5 +83,17 @@ class Listing(models.Model):
     number_of_reviews = models.IntegerField()
     reviews_per_month = models.FloatField()
     street = models.CharField(max_length=512)
+    @property
+    def estimated_monthly_revenue(self):
+        # Using InsideAirbnb "San Francisco Model":
+        # Bookings = 2 * reviews per month
+        # Length of stay = max(min_nights, 4.5 nights [LA market average])
+        # All multiplied by price
+        # (LA average stay source: https://los-angeles.airbnbcitizen.com/airbnb-home-sharing-activity-report-los-angeles/)
+        return (self.price
+                * max(4.5, self.minimum_nights)
+                * 2
+                * self.reviews_per_month)
+
     def __str__(self):
         return "%s %s ($%.2f)" %  (self.pk, self.name, self.price)

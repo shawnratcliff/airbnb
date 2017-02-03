@@ -16,7 +16,11 @@ class NeighborhoodSerializer(gis_serializers.GeoFeatureModelSerializer):
         fields = ('name', 'crime_count')
 
 class ListingSerializer(gis_serializers.GeoFeatureModelSerializer):
+    estimated_monthly_revenue = serializers.DecimalField(max_digits=9,
+                                                         decimal_places=2)
     class Meta:
         model = Listing
         geo_field = 'point'
-        fields = ('id', 'name', 'neighborhood', 'description', 'price')
+        fields = ('id', 'name', 'neighborhood', 'description', 'price',
+                  'property_type', 'room_type', 'bed_type',
+                  'estimated_monthly_revenue')
