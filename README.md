@@ -21,7 +21,7 @@ Check that the virtual env is working properly:
     which python # Executable should be located within local project directory
     python --version # Python version 3.5+ expected
 
-### Step 3: Install required pip modules.
+### Step 3: Install required pip modules. Remember that you will need to repeat this step each time a new requirement is added to requirements.txt in a future commit.
 
     pip install -r requirements.txt
 
@@ -43,3 +43,24 @@ After Postgres.app is installed, open psql and create a user and empty database 
     \q
 
 ### Step 5: Restore database contents from backup (local machines only)
+
+From the project root, create the backups directory:
+
+    mkdir backups
+
+Download the most recent database backup from Google Drive. Place it in backups/ and decompress it:
+
+    gunzip backups/filename.psql.gz
+
+Apply migrations to establish the correct schema for your new database:
+
+    ./manage.py migrate
+
+Restore the database backup:
+
+    ./manage.py dbrestore
+
+### Step 6: Run the development server
+
+    ./manage.py runserver # Defaults to localhost:8000
+
