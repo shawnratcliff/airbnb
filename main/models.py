@@ -2,7 +2,7 @@ from django.contrib.gis.db import models
 from django.contrib.postgres.fields import JSONField
 
 class Zipcode(models.Model):
-    geoid = models.CharField(max_length=5, primary_key=True)
+    geoid = models.CharField(max_length=5)
     land_area = models.FloatField() # in m^2
     water_area = models.FloatField() # in m^2
     mpoly = models.MultiPolygonField(spatial_index=True)
@@ -14,7 +14,7 @@ class Zipcode(models.Model):
         return self.geoid
 
 class BlockGroup(models.Model):
-    geoid = models.CharField(max_length=12, primary_key=True)
+    geoid = models.CharField(max_length=12)
     land_area = models.FloatField() # in m^2
     water_area = models.FloatField() # in m^2
     mpoly = models.MultiPolygonField(spatial_index=True)
@@ -44,10 +44,12 @@ class Crime(models.Model):
     crime_code = models.IntegerField()
     crime_code_desc = models.TextField(max_length=512)
     def __str__(self):
+        neighborhood_name = self.neighborhood.name if self.neighborhood else ""
+        zipcode_digits = self.zipcode.geoid if self.zipcode else ""
         return "%s (%s %s) %s" % (
             self.crime_code_desc,
-            self.neighborhood.name,
-            self.zipcode.geoid,
+            neighborhood_name,
+            zipcode_digits,
             self.report_number
         )
 
