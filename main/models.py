@@ -28,8 +28,6 @@ class Neighborhood(models.Model):
     data = JSONField(default=dict)
     def __str__(self):
         return self.name
-    class Meta:
-        ordering = ['name']
 
 class Crime(models.Model):
     # Geo fields
