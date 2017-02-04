@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'dbbackup',
     'rest_framework',
     'rest_framework_gis',
+    'corsheaders',
     'main',
 ]
 
@@ -62,12 +63,15 @@ DBBACKUP_STORAGE_OPTIONS = {'location': 'backups'}
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware', # CORS
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+CORS_ORIGIN_ALLOW_ALL = True # Don't use whitelist for CORS
 
 ROOT_URLCONF = 'airbnb.urls'
 
