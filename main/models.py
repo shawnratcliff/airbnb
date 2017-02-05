@@ -1,5 +1,6 @@
 from django.contrib.gis.db import models
 from django.contrib.postgres.fields import JSONField
+from django.db.models import Avg
 
 class Zipcode(models.Model):
     geoid = models.CharField(max_length=5)
@@ -28,6 +29,13 @@ class Neighborhood(models.Model):
     data = JSONField(default=dict)
     def __str__(self):
         return self.name
+    @property
+    def computed_stats(self):
+        return {
+            'crime_count': self.crime_set.count(),
+            'listing_count': self.listing_set.count(),
+            'avg_listing_price': self.listing_set.aggregate(Avg('price'))['price__avg'],
+        }
 
 class Crime(models.Model):
     # Geo fields
