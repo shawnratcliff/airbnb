@@ -18,10 +18,10 @@ class NeighborhoodViewSet(viewsets.ModelViewSet):
     serializer_class = NeighborhoodSerializer
 
 class ListingViewSet(viewsets.ModelViewSet):
-    #queryset = Listing.objects.all()
+    queryset = Listing.objects.all()
 
     # TEMPORARY: RESTRICT LIST TO SANTA MONICA ONLY
-    queryset = Listing.objects.filter(
-        neighborhood=Neighborhood.objects.get(name="Santa Monica"))
+    #queryset = Listing.objects.filter(
+    #    neighborhood=Neighborhood.objects.get(name="Santa Monica"))
 
     serializer_class = ListingSerializer
