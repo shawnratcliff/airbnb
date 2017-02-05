@@ -27,15 +27,17 @@ class Neighborhood(models.Model):
     name = models.CharField(max_length=512, unique=True)
     mpoly = models.MultiPolygonField(spatial_index=True)
     data = JSONField(default=dict)
+    computed_stats = JSONField(default=dict)
     def __str__(self):
         return self.name
-    @property
-    def computed_stats(self):
-        return {
+    def update_stats(self):
+        """ Update computed_stats field """
+        self.computed_stats = {
             'crime_count': self.crime_set.count(),
             'listing_count': self.listing_set.count(),
             'avg_listing_price': self.listing_set.aggregate(Avg('price'))['price__avg'],
         }
+        self.save()
 
 class Crime(models.Model):
     # Geo fields
