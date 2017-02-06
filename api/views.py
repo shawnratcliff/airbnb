@@ -34,7 +34,7 @@ class ListingViewSet(viewsets.ViewSet):
         if 'filters' in request.data.keys():
             queryset = Listing.objects.filter(get_filter_query(request.data['filters']))
         else:
-            queryset = Listing.objects.filter(price__gte=3000.0)
+            queryset = Listing.objects.filter(neighborhood=Neighborhood.objects.get(name="Santa Monica"))
         serializer = ListingSerializer(queryset, many=True)
         return Response(serializer.data)
 
