@@ -79,7 +79,8 @@ A JSON query syntax is available to filter list-based requests. Currently, suppo
 
 To request filtered data, GET /api/listings/ and supply a JSON request body. For example:
 
-    body = {
+    GET /api/listings
+    {
         'filters': {
             'numerical_range': [
                 {
@@ -105,7 +106,7 @@ In this example, we will retrieve only listings that match the following criteri
 Note: your filters object must match the above form exactly, although any particular type of filter is optional and can be omitted. For example, to retrieve all listings in Beverly Hills regardless of other attributes:
 
     GET /api/listings/
-    body = {
+    {
         'filters': {
             'region': {
                 'region_type': 'neighborhood',
