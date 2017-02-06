@@ -14,7 +14,7 @@ class NeighborhoodViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows users to be viewed or edited.
     """
-    queryset = Neighborhood.objects.annotate(crime_count=Count('crime'))
+    queryset = Neighborhood.objects.all()
     serializer_class = NeighborhoodSerializer
 
 class ListingViewSet(viewsets.ModelViewSet):

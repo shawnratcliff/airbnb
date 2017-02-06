@@ -9,11 +9,10 @@ from rest_framework import serializers
 from rest_framework_gis import serializers as gis_serializers
 
 class NeighborhoodSerializer(gis_serializers.GeoFeatureModelSerializer):
-    crime_count = serializers.IntegerField()
     class Meta:
         model = Neighborhood
         geo_field = 'mpoly'
-        fields = ('name', 'crime_count')
+        fields = ('name', 'data')
 
 class ListingSerializer(gis_serializers.GeoFeatureModelSerializer):
     estimated_monthly_revenue = serializers.DecimalField(max_digits=9,

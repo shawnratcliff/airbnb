@@ -30,6 +30,10 @@ class Neighborhood(models.Model):
     computed_stats = JSONField(default=dict)
     def __str__(self):
         return self.name
+    @property
+    def data(self):
+        """Return one object containing both fixed data and computed statistics."""
+        return {**self.fixed_data, **self.computed_stats} # Merges dicts. (See PEP 478 re: syntax.)
     def update_stats(self):
         """ Update computed_stats field """
         self.computed_stats = {
