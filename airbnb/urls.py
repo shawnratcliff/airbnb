@@ -20,8 +20,8 @@ from rest_framework import routers
 from api import views
 
 router = routers.DefaultRouter()
-router.register(r'neighborhoods', views.NeighborhoodViewSet)
-router.register(r'listings', views.ListingViewSet)
+router.register(r'neighborhoods', views.NeighborhoodViewSet, base_name="neighborhoods")
+router.register(r'listings', views.ListingViewSet, base_name="listings")
 
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.

@@ -51,7 +51,7 @@ INSTALLED_APPS = [
 # DRF Settings
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
+        'rest_framework.permissions.AllowAny',
     ],
     # 'PAGE_SIZE': 10
 }

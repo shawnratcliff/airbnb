@@ -22,4 +22,4 @@ class ListingSerializer(gis_serializers.GeoFeatureModelSerializer):
         geo_field = 'point'
         fields = ('id', 'name', 'neighborhood', 'description', 'price',
                   'property_type', 'room_type', 'bed_type',
-                  'estimated_monthly_revenue')
+                  'estimated_monthly_revenue', 'accommodates')
