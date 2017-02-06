@@ -1,12 +1,13 @@
 from django.contrib.gis.db import models
 from django.contrib.postgres.fields import JSONField
+from django.db.models import Avg
 
 class Zipcode(models.Model):
-    geoid = models.CharField(max_length=5, primary_key=True)
+    geoid = models.CharField(max_length=5)
     land_area = models.FloatField() # in m^2
     water_area = models.FloatField() # in m^2
-    mpoly = models.MultiPolygonField()
-    data = JSONField(default=dict)
+    mpoly = models.MultiPolygonField(spatial_index=True)
+    fixed_data = JSONField(default=dict)
     def __str__(self):
         return self.zipcode
     @property
@@ -14,29 +15,40 @@ class Zipcode(models.Model):
         return self.geoid
 
 class BlockGroup(models.Model):
-    geoid = models.CharField(max_length=12, primary_key=True)
+    geoid = models.CharField(max_length=12)
     land_area = models.FloatField() # in m^2
     water_area = models.FloatField() # in m^2
-    mpoly = models.MultiPolygonField()
-    data = JSONField(default=dict)
+    mpoly = models.MultiPolygonField(spatial_index=True)
+    fixed_data = JSONField(default=dict)
     def __str__(self):
         return self.geoid
 
 class Neighborhood(models.Model):
     name = models.CharField(max_length=512, unique=True)
-    mpoly = models.MultiPolygonField()
-    data = JSONField(default=dict)
+    mpoly = models.MultiPolygonField(spatial_index=True)
+    fixed_data = JSONField(default=dict)
+    computed_stats = JSONField(default=dict)
     def __str__(self):
         return self.name
-    class Meta:
-        ordering = ['name']
+    @property
+    def data(self):
+        """Return one object containing both fixed data and computed statistics."""
+        return {**self.fixed_data, **self.computed_stats} # Merges dicts. (See PEP 478 re: syntax.)
+    def update_stats(self):
+        """ Update computed_stats field """
+        self.computed_stats = {
+            'crime_count': self.crime_set.count(),
+            'listing_count': self.listing_set.count(),
+            'avg_listing_price': self.listing_set.aggregate(Avg('price'))['price__avg'],
+        }
+        self.save()
 
 class Crime(models.Model):
     # Geo fields
-    neighborhood = models.ForeignKey(Neighborhood, null=True)
-    zipcode = models.ForeignKey(Zipcode, null=True)
-    block_group = models.ForeignKey(BlockGroup, null=True)
-    point = models.PointField()
+    neighborhood = models.ForeignKey(Neighborhood, db_index=True, null=True)
+    zipcode = models.ForeignKey(Zipcode, db_index=True, null=True)
+    block_group = models.ForeignKey(BlockGroup, db_index=True, null=True)
+    point = models.PointField(spatial_index=True)
 
     report_number = models.BigIntegerField() # NOT UNIQUE
     date_reported = models.DateField()
@@ -44,10 +56,12 @@ class Crime(models.Model):
     crime_code = models.IntegerField()
     crime_code_desc = models.TextField(max_length=512)
     def __str__(self):
-        return "%s (%s %s) %d" % (
+        neighborhood_name = self.neighborhood.name if self.neighborhood else ""
+        zipcode_digits = self.zipcode.geoid if self.zipcode else ""
+        return "%s (%s %s) %s" % (
             self.crime_code_desc,
-            self.neighborhood.name,
-            self.zipcode.geoid,
+            neighborhood_name,
+            zipcode_digits,
             self.report_number
         )
 
@@ -55,10 +69,10 @@ class Listing(models.Model):
     id = models.BigIntegerField(primary_key=True)
     name = models.TextField()
     # Geo fields
-    neighborhood = models.ForeignKey(Neighborhood, null=True)
-    zipcode = models.ForeignKey(Zipcode, null=True)
-    block_group = models.ForeignKey(BlockGroup, null=True)
-    point = models.PointField()
+    neighborhood = models.ForeignKey(Neighborhood, db_index=True, null=True)
+    zipcode = models.ForeignKey(Zipcode, db_index=True, null=True)
+    block_group = models.ForeignKey(BlockGroup, db_index=True, null=True)
+    point = models.PointField(spatial_index=True)
     # Data fields
     listing_url = models.CharField(max_length=512)
     scrape_id = models.BigIntegerField()
@@ -83,5 +97,17 @@ class Listing(models.Model):
     number_of_reviews = models.IntegerField()
     reviews_per_month = models.FloatField()
     street = models.CharField(max_length=512)
+    @property
+    def estimated_monthly_revenue(self):
+        # Using InsideAirbnb "San Francisco Model":
+        # Bookings = 2 * reviews per month
+        # Length of stay = max(min_nights, 4.5 nights [LA market average])
+        # All multiplied by price
+        # (LA average stay source: https://los-angeles.airbnbcitizen.com/airbnb-home-sharing-activity-report-los-angeles/)
+        return (self.price
+                * max(4.5, self.minimum_nights)
+                * 2
+                * self.reviews_per_month)
+
     def __str__(self):
-        return "%d %s ($%.2f)" %  (self.pk, self.name, self.price)
+        return "%s %s ($%.2f)" %  (self.pk, self.name, self.price)

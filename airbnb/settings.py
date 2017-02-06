@@ -41,23 +41,37 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.gis',
     'django_extensions',
-    'dbbackup'
+    'dbbackup',
+    'rest_framework',
+    'rest_framework_gis',
+    'corsheaders',
     'main',
 ]
 
+# DRF Settings
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',
+    ],
+    # 'PAGE_SIZE': 10
+}
+
 # Django DBBACKUP Settings
-DBBACKUP_STORAGE = 'dbbackup.storage.filesystem_storage'
+DBBACKUP_STORAGE = 'django.core.files.storage.FileSystemStorage'
 DBBACKUP_STORAGE_OPTIONS = {'location': 'backups'}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware', # CORS
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+CORS_ORIGIN_ALLOW_ALL = True # Don't use whitelist for CORS
 
 ROOT_URLCONF = 'airbnb.urls'
 
@@ -97,6 +111,7 @@ DATABASES = {
         'NAME': 'airbnb',
         'USER': 'airbnbuser',
         'PASSWORD': '191project',
+        'HOST': 'localhost'
     },
 }
 
