@@ -7,7 +7,7 @@ class Zipcode(models.Model):
     land_area = models.FloatField() # in m^2
     water_area = models.FloatField() # in m^2
     mpoly = models.MultiPolygonField(spatial_index=True)
-    data = JSONField(default=dict)
+    fixed_data = JSONField(default=dict)
     def __str__(self):
         return self.zipcode
     @property
@@ -19,14 +19,14 @@ class BlockGroup(models.Model):
     land_area = models.FloatField() # in m^2
     water_area = models.FloatField() # in m^2
     mpoly = models.MultiPolygonField(spatial_index=True)
-    data = JSONField(default=dict)
+    fixed_data = JSONField(default=dict)
     def __str__(self):
         return self.geoid
 
 class Neighborhood(models.Model):
     name = models.CharField(max_length=512, unique=True)
     mpoly = models.MultiPolygonField(spatial_index=True)
-    data = JSONField(default=dict)
+    fixed_data = JSONField(default=dict)
     computed_stats = JSONField(default=dict)
     def __str__(self):
         return self.name
