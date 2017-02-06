@@ -64,3 +64,52 @@ Restore the database backup:
 
     ./manage.py runserver # Defaults to localhost:8000
 
+## Data API
+
+### Endpoints
+
+The data API is available at [hostname]/api/.
+To retrieve a list of neighborhooods, GET /api/neighborhoods/
+To retrieve a list of Airbnb listings, GET /api/listings/
+To retrieve an individual listing, append the id, e.g.: GET /api/listing/33
+
+### Filtering
+
+A JSON query syntax is available to filter list-based requests. Currently, supported filter operations include "numerical_range" and "region".
+
+To request filtered data, GET /api/listings/ and supply a JSON request body. For example:
+
+    body = {
+        'filters': {
+            'numerical_range': [
+                {
+                    'attribute_name': 'price',
+                    'min': 175.00,
+                    'max': 250.00
+                },
+                {
+                    'attribute_name': 'accommodates',
+                    'min': 2,
+                    'max': null
+                }
+            ],
+            'region': {
+                'region_type': 'neighborhood',
+                'id': 35
+            }
+        }
+    }
+
+In this example, we will retrieve only listings that match the following criteria: 1) price between 175-250 per night (inclusive), 2) property accommodates at least 2 people; 3) property is located in Beverly Hills.
+
+Note: your filters object must match the above form exactly, although any particular type of filter is optional and can be omitted. For example, to retrieve all listings in Beverly Hills regardless of other attributes:
+
+    GET /api/listings/
+    body = {
+        'filters': {
+            'region': {
+                'region_type': 'neighborhood',
+                'id': 35
+            }
+        }
+    }
