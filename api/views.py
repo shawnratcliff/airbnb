@@ -10,6 +10,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.decorators import detail_route, list_route
 from rest_framework import mixins
+from django.views.decorators.csrf import csrf_exempt
 
 from django.db.models import Count
 from django.db.models import F, ExpressionWrapper, Value
@@ -26,6 +27,7 @@ class FilterableViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewse
     To use it, override the class and set the .queryset and .serializer_class attributes to match the model.
     """
     @list_route(methods=['get', 'post'])
+    @csrf_exempt
     def filter(self, request):
         if 'filters' in request.data.keys():
             queryset = self.queryset.filter(get_filter_query(request.data['filters']))
