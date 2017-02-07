@@ -69,17 +69,17 @@ Restore the database backup:
 ### Endpoints
 
 The data API is available at [hostname]/api/.
-To retrieve a list of neighborhooods, GET /api/neighborhoods/
-To retrieve a list of Airbnb listings, GET /api/listings/
+To retrieve a list of all neighborhooods, GET /api/neighborhoods/
+To retrieve a list of all Airbnb listings, GET /api/listings/
 To retrieve an individual listing, append the id, e.g.: GET /api/listing/33
 
 ### Filtering
 
-A JSON query syntax is available to filter list-based requests. Currently, supported filter operations include "numerical_range" and "region".
+A JSON query syntax is available to filter list-based requests. Currently, supported filter operations include "numerical_range" and "region". When specifying an attribute name within a filter, be sure to the attribute name as it is declared in main/models.py.
 
-To request filtered data, GET /api/listings/ and supply a JSON request body. For example:
+To request filtered data, append /filter/ to the list URL and supply filter parameters in a JSON POST body. For example:
 
-    GET /api/listings
+    POST /api/listings/filter/
     {
         'filters': {
             'numerical_range': [
@@ -105,7 +105,7 @@ In this example, we will retrieve only listings that match the following criteri
 
 Note: your filters object must match the above form exactly, although any particular type of filter is optional and can be omitted. For example, to retrieve all listings in Beverly Hills regardless of other attributes:
 
-    GET /api/listings/
+    POST /api/listings/filter/
     {
         'filters': {
             'region': {

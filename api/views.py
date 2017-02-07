@@ -9,6 +9,8 @@ from rest_framework import viewsets
 from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.decorators import detail_route, list_route
+from rest_framework import mixins
+
 from django.db.models import Count
 from django.db.models import F, ExpressionWrapper, Value
 import json
@@ -16,29 +18,26 @@ import json
 from api.serializers import NeighborhoodSerializer, ListingSerializer
 from api.filters import get_filter_query
 
+class FilterableViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+    """
+    A base viewset that provides 'retrieve' and 'list' actions.
+    Supports filtering on 'list' actions via POST or GET methods.
 
-class NeighborhoodViewSet(viewsets.ReadOnlyModelViewSet):
+    To use it, override the class and set the .queryset and .serializer_class attributes to match the model.
     """
-    API endpoint that allows users to be viewed or edited.
-    """
+    @list_route(methods=['get', 'post'])
+    def filter(self, request):
+        if 'filters' in request.data.keys():
+            queryset = self.queryset.filter(get_filter_query(request.data['filters']))
+        else:
+            queryset = self.queryset
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data)
+
+class ListingViewSet(FilterableViewSet):
+    queryset = Listing.objects.all()
+    serializer_class = ListingSerializer
+
+class NeighborhoodViewSet(FilterableViewSet):
     queryset = Neighborhood.objects.all()
     serializer_class = NeighborhoodSerializer
-
-
-class ListingViewSet(viewsets.ViewSet):
-    """
-    A simple ViewSet for listing or retrieving Airbnb listings
-    """
-
-    def list(self, request):
-        if 'filters' in request.data.keys():
-            queryset = Listing.objects.filter(get_filter_query(request.data['filters']))
-        else:
-            queryset = Listing.objects.filter(neighborhood=Neighborhood.objects.get(name="Santa Monica"))
-        serializer = ListingSerializer(queryset, many=True)
-        return Response(serializer.data)
-
-    def retrieve(self, request, pk=None):
-        listing = get_object_or_404(queryset, pk=pk)
-        serializer = ListingSerializer(listing)
-        return Response(serializer.data)
