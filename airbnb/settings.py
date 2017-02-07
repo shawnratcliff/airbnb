@@ -71,7 +71,14 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+# django-cors-headers settings
 CORS_ORIGIN_ALLOW_ALL = True # Don't use whitelist for CORS
+CORS_ALLOW_METHODS = (
+    'GET',
+    'OPTIONS',
+    'POST',
+)
+
 
 ROOT_URLCONF = 'airbnb.urls'
 
