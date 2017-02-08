@@ -12,19 +12,19 @@ class NeighborhoodSerializer(gis_serializers.GeoFeatureModelSerializer):
     class Meta:
         model = Neighborhood
         geo_field = 'mpoly'
-        fields = ('name', 'data')
+        fields = ('id', 'name', 'data')
 
 class ZipcodeSerializer(gis_serializers.GeoFeatureModelSerializer):
     class Meta:
         model = Zipcode
         geo_field = 'mpoly'
-        fields = ('geoid', 'data')
+        fields = ('id', 'geoid', 'data')
 
 class BlockGroupSerializer(gis_serializers.GeoFeatureModelSerializer):
     class Meta:
         model = BlockGroup
         geo_field = 'mpoly'
-        fields = ('geoid', 'data')
+        fields = ('id', 'geoid', 'data')
 
 class ListingSerializer(gis_serializers.GeoFeatureModelSerializer):
     estimated_monthly_revenue = serializers.DecimalField(max_digits=9,
