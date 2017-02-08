@@ -50,9 +50,15 @@ class Crime(models.Model):
     block_group = models.ForeignKey(BlockGroup, db_index=True, null=True)
     point = models.PointField(spatial_index=True)
 
+    data_source = models.CharField(
+        max_length=16,
+        db_index=True,
+        choices=(('LAPD', 'Los Angeles Police Department'), ('LACS', 'Los Angeles County Sheriff'))
+    )
     report_number = models.BigIntegerField() # NOT UNIQUE
     date_reported = models.DateField()
     date_occurred = models.DateTimeField()
+    category = models.CharField(max_length=512, null=True)
     crime_code = models.IntegerField()
     crime_code_desc = models.TextField(max_length=512)
     def __str__(self):
