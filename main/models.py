@@ -53,6 +53,7 @@ class Crime(models.Model):
     data_source = models.CharField(
         max_length=16,
         db_index=True,
+        null=False,
         choices=(('LAPD', 'Los Angeles Police Department'), ('LACS', 'Los Angeles County Sheriff'))
     )
     report_number = models.BigIntegerField() # NOT UNIQUE
