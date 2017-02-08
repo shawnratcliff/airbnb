@@ -72,6 +72,14 @@ class Crime(models.Model):
             self.report_number
         )
 
+class Amenity(models.Model):
+    name = models.CharField(max_length=128, unique=True)
+    def __str__(self):
+        return self.name
+    class Meta:
+        ordering=('name',)
+        verbose_name_plural='amenities'
+
 class Listing(models.Model):
     id = models.BigIntegerField(primary_key=True)
     name = models.TextField()
@@ -97,7 +105,8 @@ class Listing(models.Model):
     bathrooms = models.FloatField() # CHECK FOR NAN
     bedrooms = models.FloatField() # CHECK FOR NAN
     bed_type = models.CharField(max_length=512)
-    amenities = models.TextField()
+    amenities = models.ManyToManyField(Amenity)
+    raw_amenities = models.TextField()
     price = models.FloatField()
     minimum_nights = models.IntegerField()
     availability_365 = models.IntegerField()

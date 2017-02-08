@@ -3,6 +3,7 @@ from main.models import (
     Zipcode,
     BlockGroup,
     Listing,
+    Amenity,
     Crime
 )
 from rest_framework import viewsets
@@ -16,7 +17,7 @@ from django.db.models import Count
 from django.db.models import F, ExpressionWrapper, Value
 import json
 
-from api.serializers import NeighborhoodSerializer, ListingSerializer
+from api.serializers import NeighborhoodSerializer, ListingSerializer, AmenitySerializer
 from api.filters import get_filter_query
 
 class FilterableViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
@@ -43,3 +44,7 @@ class ListingViewSet(FilterableViewSet):
 class NeighborhoodViewSet(FilterableViewSet):
     queryset = Neighborhood.objects.all()
     serializer_class = NeighborhoodSerializer
+
+class AmenityViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Amenity.objects.all()
+    serializer_class = AmenitySerializer

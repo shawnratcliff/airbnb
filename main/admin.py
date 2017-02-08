@@ -1,6 +1,6 @@
 from django.contrib.gis import admin
 from django.db.models import ExpressionWrapper, F
-from .models import Zipcode, BlockGroup, Neighborhood, Listing, Crime
+from .models import Zipcode, BlockGroup, Neighborhood, Listing, Crime, Amenity
 
 class ZipcodeAdmin(admin.OSMGeoAdmin):
     search_fields = ['geoid']
@@ -41,4 +41,5 @@ admin.site.register(Zipcode, ZipcodeAdmin)
 admin.site.register(BlockGroup, BlockGroupAdmin)
 admin.site.register(Neighborhood, NeighborhoodAdmin)
 admin.site.register(Listing, ListingAdmin)
+admin.site.register(Amenity)
 admin.site.register(Crime, CrimeAdmin)

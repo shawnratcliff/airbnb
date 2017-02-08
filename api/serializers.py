@@ -3,6 +3,7 @@ from main.models import (
     Zipcode,
     BlockGroup,
     Listing,
+    Amenity,
     Crime
 )
 from rest_framework import serializers
@@ -26,12 +27,22 @@ class BlockGroupSerializer(gis_serializers.GeoFeatureModelSerializer):
         geo_field = 'mpoly'
         fields = ('id', 'geoid', 'data')
 
+class AmenitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Amenity
+        fields=('id', 'name')
+
 class ListingSerializer(gis_serializers.GeoFeatureModelSerializer):
     estimated_monthly_revenue = serializers.DecimalField(max_digits=9,
                                                          decimal_places=2)
+    amenities = serializers.SerializerMethodField()
+
     class Meta:
         model = Listing
         geo_field = 'point'
         fields = ('id', 'name', 'neighborhood', 'description', 'price',
                   'property_type', 'room_type', 'bed_type',
-                  'estimated_monthly_revenue', 'accommodates')
+                  'estimated_monthly_revenue', 'accommodates', 'amenities')
+
+    def get_amenities(self, obj):
+        return [amenity.name for amenity in obj.amenities.all()]
