@@ -16,7 +16,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Count
 from django.db.models import F, ExpressionWrapper, Value
 import json
-
+from django.contrib.gis.db.models.functions import AsGeoJSON
 from api.serializers import NeighborhoodSerializer, ListingSerializer, AmenitySerializer
 from api.filters import get_filter_query
 
@@ -42,7 +42,7 @@ class ListingViewSet(FilterableViewSet):
     serializer_class = ListingSerializer
 
 class NeighborhoodViewSet(FilterableViewSet):
-    queryset = Neighborhood.objects.all()
+    queryset = Neighborhood.objects.annotate(geometry=AsGeoJSON('mpoly')) # Annotate geometry because we're using a different serializer
     serializer_class = NeighborhoodSerializer
 
 class AmenityViewSet(viewsets.ReadOnlyModelViewSet):

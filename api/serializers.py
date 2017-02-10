@@ -8,29 +8,59 @@ from main.models import (
 )
 from rest_framework import serializers
 from rest_framework_gis import serializers as gis_serializers
+from collections import OrderedDict
+from rest_framework.serializers import ListSerializer
+import json
 
-class NeighborhoodSerializer(gis_serializers.GeoFeatureModelSerializer):
-    class Meta:
-        model = Neighborhood
-        geo_field = 'mpoly'
-        fields = ('id', 'name', 'data')
+"""
+Quick and dirty serializers to replace the inefficient ones in the DRF GIS library.
+Careful, these aren't safe for relational fields.
+"""
 
-class ZipcodeSerializer(gis_serializers.GeoFeatureModelSerializer):
-    class Meta:
-        model = Zipcode
-        geo_field = 'mpoly'
-        fields = ('id', 'geoid', 'data')
+class FastGeoJSONListSerializer(ListSerializer):
+    @property
+    def data(self):
+        return super(ListSerializer, self).data
 
-class BlockGroupSerializer(gis_serializers.GeoFeatureModelSerializer):
+    def to_representation(self, data):
+        """
+        Add GeoJSON compatible formatting to a serialized queryset list
+        """
+        return OrderedDict((
+            ("type", "FeatureCollection"),
+            ("features", super(FastGeoJSONListSerializer, self).to_representation(data))
+        ))
+
+
+class FastGeoJSONSerializer(serializers.BaseSerializer):
+    geometry = serializers.JSONField()
+    def to_representation(self, obj):
+        return {
+            'id': obj.pk,
+            'type': 'Feature',
+            'geometry': json.loads(obj.geometry),
+            'properties': {
+                field_name: getattr(obj, field_name)
+                for field_name in self.property_fields
+            }
+        }
     class Meta:
-        model = BlockGroup
-        geo_field = 'mpoly'
-        fields = ('id', 'geoid', 'data')
+        list_serializer_class = FastGeoJSONListSerializer
+
+class NeighborhoodSerializer(FastGeoJSONSerializer):
+    property_fields = ('name', 'data')
+
+class ZipcodeSerializer(FastGeoJSONSerializer):
+    property_fields = ('geoid', 'data')
+
+class BlockGroupSerializer(FastGeoJSONSerializer):
+    property_fields = ('geoid', 'data')
 
 class AmenitySerializer(serializers.ModelSerializer):
     class Meta:
         model=Amenity
         fields=('id', 'name')
+
 
 class ListingSerializer(gis_serializers.GeoFeatureModelSerializer):
     estimated_monthly_revenue = serializers.DecimalField(max_digits=9,
@@ -45,4 +75,4 @@ class ListingSerializer(gis_serializers.GeoFeatureModelSerializer):
                   'estimated_monthly_revenue', 'accommodates', 'amenities')
 
     def get_amenities(self, obj):
-        return [amenity.name for amenity in obj.amenities.all()]
+        return [amenity['name'] for amenity in obj.amenities.values('name')]

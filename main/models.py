@@ -113,6 +113,7 @@ class Listing(models.Model):
     number_of_reviews = models.IntegerField()
     reviews_per_month = models.FloatField()
     street = models.CharField(max_length=512)
+
     @property
     def estimated_monthly_revenue(self):
         # Using InsideAirbnb "San Francisco Model":
