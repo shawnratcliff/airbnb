@@ -69,9 +69,14 @@ Restore the database backup:
 ### Endpoints
 
 The data API is available at [hostname]/api/.
+
 To retrieve a list of all neighborhooods, GET /api/neighborhoods/
+
 To retrieve a list of all Airbnb listings, GET /api/listings/
+
 To retrieve an individual listing, append the id, e.g.: GET /api/listing/33
+
+To retreive a list of all available listing amenities: GET /api/amenities/
 
 ### Filtering
 
