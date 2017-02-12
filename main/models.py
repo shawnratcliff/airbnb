@@ -1,6 +1,8 @@
 from django.contrib.gis.db import models
 from django.contrib.postgres.fields import JSONField
-from django.db.models import Avg
+from django.db.models import Avg, Sum, F
+from pg_utils import Seconds
+SECONDS_PER_YEAR = 3.154e+7
 
 class Zipcode(models.Model):
     geoid = models.CharField(max_length=5)
@@ -37,15 +39,26 @@ class Neighborhood(models.Model):
     def update_stats(self):
         """ Update computed_stats field """
         num_listings = self.listing_set.count()
-        avg_estimated_bookings_per_listing = (
+        avg_listing_price = self.listing_set.aggregate(Avg('price'))['price__avg']
+        avg_estimated_bookings_per_listing_per_month = (
             None if num_listings == 0
-            else 2 * Review.objects.filter(listing_id__in=self.listing_set.values_list('id', flat=True)).count() / num_listings
+            else 2.0 * self.listing_set.aggregate(Avg('reviews_per_month'))['reviews_per_month__avg']
         )
         self.computed_stats = {
             'crime_count': self.crime_set.count(),
             'listing_count': self.listing_set.count(),
-            'avg_listing_price': self.listing_set.aggregate(Avg('price'))['price__avg'],
-            'avg_estimated_bookings_per_listing': avg_estimated_bookings_per_listing
+            'avg_listing_price': avg_listing_price,
+            'avg_estimated_bookings_per_listing_per_month': avg_estimated_bookings_per_listing_per_month,
+            'avg_estimated_revenue_per_listing_per_month': (
+                None if num_listings == 0
+                else avg_listing_price * avg_estimated_bookings_per_listing_per_month
+            ),
+            'total_estimated_bookings_per_month':(
+                0 if num_listings == 0
+                else self.listing_set.aggregate(Sum('reviews_per_month'), )['reviews_per_month__sum']
+            ),
+            'avg_host_experience_years': self.listing_set.aggregate(
+                avg_host_exp=Avg(Seconds(F('last_scraped') - F('host_since'))) / SECONDS_PER_YEAR)['avg_host_exp'],
         }
         self.save()
 
