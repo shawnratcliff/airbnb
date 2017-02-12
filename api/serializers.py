@@ -61,10 +61,17 @@ class AmenitySerializer(serializers.ModelSerializer):
         model=Amenity
         fields=('id', 'name')
 
+class ListingListSerializer(FastGeoJSONSerializer):
+    """
+    Serializer for Listing list views (retrieves fewer fields)
+    """
+    property_fields = ('name', 'neighborhood_id', 'price', 'property_type',
+                       'room_type', 'bed_type', 'accommodates', 'estimated_revenue_per_month',)
 
-class ListingSerializer(gis_serializers.GeoFeatureModelSerializer):
-    estimated_monthly_revenue = serializers.DecimalField(max_digits=9,
-                                                         decimal_places=2)
+class ListingDetailSerializer(gis_serializers.GeoFeatureModelSerializer):
+    """
+    Serializer for Listing detail views (retrieves more fields)
+    """
     amenities = serializers.SerializerMethodField()
 
     class Meta:
@@ -72,7 +79,7 @@ class ListingSerializer(gis_serializers.GeoFeatureModelSerializer):
         geo_field = 'point'
         fields = ('id', 'name', 'neighborhood', 'description', 'price',
                   'property_type', 'room_type', 'bed_type',
-                  'estimated_monthly_revenue', 'accommodates', 'amenities')
+                  'estimated_revenue_per_month', 'accommodates', 'amenities',)
 
     def get_amenities(self, obj):
         return [amenity['name'] for amenity in obj.amenities.values('name')]

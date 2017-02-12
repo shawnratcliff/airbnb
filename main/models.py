@@ -1,6 +1,7 @@
 from django.contrib.gis.db import models
 from django.contrib.postgres.fields import JSONField
-from django.db.models import Avg, Sum, F
+from django.db.models import Avg, Sum, F, FloatField
+from django.db.models.functions import Cast, Greatest
 from pg_utils import Seconds
 SECONDS_PER_YEAR = 3.154e+7
 
@@ -51,7 +52,7 @@ class Neighborhood(models.Model):
             'avg_estimated_bookings_per_listing_per_month': avg_estimated_bookings_per_listing_per_month,
             'avg_estimated_revenue_per_listing_per_month': (
                 None if num_listings == 0
-                else avg_listing_price * avg_estimated_bookings_per_listing_per_month
+                else self.listing_set.aggregate(Avg('estimated_revenue_per_month'))['estimated_revenue_per_month__avg']
             ),
             'total_estimated_bookings_per_month':(
                 0 if num_listings == 0
@@ -132,18 +133,19 @@ class Listing(models.Model):
     number_of_reviews = models.IntegerField()
     reviews_per_month = models.FloatField()
     street = models.CharField(max_length=512)
+    estimated_revenue_per_month = models.FloatField(default=0)
 
-    @property
-    def estimated_monthly_revenue(self):
+    def update_stats(self):
         # Using InsideAirbnb "San Francisco Model":
         # Bookings = 2 * reviews per month
         # Length of stay = max(min_nights, 4.5 nights [LA market average])
-        # All multiplied by price
+        # Subtotal: estimated occupancy days per month. Cap at 70% (21 days total)
+        # Multiply by nightly price
         # (LA average stay source: https://los-angeles.airbnbcitizen.com/airbnb-home-sharing-activity-report-los-angeles/)
-        return (self.price
-                * max(4.5, self.minimum_nights)
-                * 2
-                * self.reviews_per_month)
+        num_bookings = 2 * self.reviews_per_month
+        days_occupied = min(21, num_bookings * max(4.5, self.minimum_nights))
+        self.estimated_revenue_per_month = self.price * days_occupied
+        self.save()
 
     def __str__(self):
         return "%s %s ($%.2f)" %  (self.pk, self.name, self.price)
