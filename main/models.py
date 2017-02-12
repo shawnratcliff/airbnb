@@ -36,10 +36,16 @@ class Neighborhood(models.Model):
         return {**self.fixed_data, **self.computed_stats} # Merges dicts. (See PEP 478 re: syntax.)
     def update_stats(self):
         """ Update computed_stats field """
+        num_listings = self.listing_set.count()
+        avg_estimated_bookings_per_listing = (
+            None if num_listings == 0
+            else 2 * Review.objects.filter(listing_id__in=self.listing_set.values_list('id', flat=True)).count() / num_listings
+        )
         self.computed_stats = {
             'crime_count': self.crime_set.count(),
             'listing_count': self.listing_set.count(),
             'avg_listing_price': self.listing_set.aggregate(Avg('price'))['price__avg'],
+            'avg_estimated_bookings_per_listing': avg_estimated_bookings_per_listing
         }
         self.save()
 
@@ -128,3 +134,14 @@ class Listing(models.Model):
 
     def __str__(self):
         return "%s %s ($%.2f)" %  (self.pk, self.name, self.price)
+
+class Review(models.Model):
+    id = models.BigIntegerField(primary_key=True)
+    listing = models.ForeignKey(Listing)
+    date = models.DateField()
+    reviewer_id = models.BigIntegerField()
+    comments = models.TextField(null=True)
+    def __str__(self):
+        return ("%s %s %s" % (self.listing_id, self.date, self.comments[:50] ))
+
+
