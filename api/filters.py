@@ -30,3 +30,10 @@ def get_filter_query(filters, geom_name='point'):
             query &= Q(**kwargs)
 
     return query
+
+def random_sample(queryset, n):
+    """
+    Returns a random sample of the queryset, up to the max sample size of n.
+    (If n < N, N records will be returned.)
+    """
+    return queryset.order_by('?')[:n]

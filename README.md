@@ -80,7 +80,7 @@ To retreive a list of all available listing amenities: GET /api/amenities/
 
 ### Filtering
 
-A JSON query syntax is available to filter list-based requests. Currently, supported filter operations include "numerical_range" and "region". When specifying an attribute name within a filter, be sure to the attribute name as it is declared in main/models.py.
+A JSON query syntax is available to filter list-based requests. Currently, supported filter operations include "max_sample_size", "numerical_range" and "region". When specifying an attribute name within a filter, be sure to the attribute name as it is declared in main/models.py.
 
 To request filtered data, append /filter/ to the list URL and supply filter parameters in a JSON POST body. For example:
 
@@ -119,3 +119,14 @@ Note: your filters object must match the above form exactly, although any partic
             }
         }
     }
+    
+To take a random sample of at most *n* elements from the filtered set, append the key, "max_sample_size":
+
+    POST /api/listings/filter/
+    {
+        'filters': {
+            'max_sample_size': 5000,
+        }
+    }
+    
+In this case, we are requesting a random sample of at most 5000 listings, drawn from the set of all listings (no other filter criteria are given). If other filter criteria are given, note that, if there are fewer than max_sample_size elements in the filtered set, the entire set will be returned.

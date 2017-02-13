@@ -17,7 +17,7 @@ from django.db.models import F, FloatField
 from django.db.models.functions import Greatest, Cast
 from django.contrib.gis.db.models.functions import AsGeoJSON
 from api.serializers import NeighborhoodSerializer, ListingListSerializer, ListingDetailSerializer, AmenitySerializer
-from api.filters import get_filter_query
+from api.filters import get_filter_query, random_sample
 
 class FilterableViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     """
@@ -45,7 +45,10 @@ class FilterableViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewse
     @csrf_exempt
     def filter(self, request):
         if 'filters' in request.data.keys():
-            queryset = self.get_queryset().filter(get_filter_query(request.data['filters']))
+            filters = request.data['filters']
+            queryset = self.get_queryset().filter(get_filter_query(filters))
+            if 'max_sample_size' in filters.keys():
+                queryset = random_sample(queryset, filters['max_sample_size'])
         else:
             queryset = self.get_queryset()
         serializer = self.get_serializer_class()(queryset, many=True)
