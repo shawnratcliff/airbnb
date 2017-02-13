@@ -58,7 +58,7 @@ class ListingViewSet(FilterableViewSet):
     detail_serializer_class = ListingDetailSerializer
 
 class NeighborhoodViewSet(FilterableViewSet):
-    list_queryset = Neighborhood.objects.annotate(geometry=AsGeoJSON('mpoly')) # Annotate geometry because we're using a different serializer
+    list_queryset = Neighborhood.objects.annotate(geometry=AsGeoJSON('mpoly'), center=AsGeoJSON('centroid')) # Annotate geometry because we're using a different serializer
     detail_queryset = list_queryset
     list_serializer_class = NeighborhoodSerializer
     detail_serializer_class = NeighborhoodSerializer

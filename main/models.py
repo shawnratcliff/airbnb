@@ -29,6 +29,7 @@ class BlockGroup(models.Model):
 class Neighborhood(models.Model):
     name = models.CharField(max_length=512, unique=True)
     mpoly = models.MultiPolygonField(spatial_index=True)
+    centroid = models.PointField(null=True)
     fixed_data = JSONField(default=dict)
     computed_stats = JSONField(default=dict)
     def __str__(self):

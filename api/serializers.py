@@ -40,7 +40,7 @@ class FastGeoJSONSerializer(serializers.BaseSerializer):
             'type': 'Feature',
             'geometry': json.loads(obj.geometry),
             'properties': {
-                field_name: getattr(obj, field_name)
+                field_name: json.loads(getattr(obj, field_name)) if field_name == 'center' else getattr(obj, field_name)
                 for field_name in self.property_fields
             }
         }
@@ -48,7 +48,7 @@ class FastGeoJSONSerializer(serializers.BaseSerializer):
         list_serializer_class = FastGeoJSONListSerializer
 
 class NeighborhoodSerializer(FastGeoJSONSerializer):
-    property_fields = ('name', 'data')
+    property_fields = ('name', 'center', 'data')
 
 class ZipcodeSerializer(FastGeoJSONSerializer):
     property_fields = ('geoid', 'data')
