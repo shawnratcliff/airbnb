@@ -1,11 +1,14 @@
 from django.contrib.gis import admin
 from django.db.models import ExpressionWrapper, F
-from .models import Zipcode, BlockGroup, Neighborhood, Listing, Crime, Amenity, Review
+from .models import Zipcode, BlockGroup, Tract, Neighborhood, Listing, Crime, Amenity, Review
 
 class ZipcodeAdmin(admin.OSMGeoAdmin):
     search_fields = ['geoid']
 
 class BlockGroupAdmin(admin.OSMGeoAdmin):
+    search_fields = ['geoid']
+
+class TractAdmin(admin.OSMGeoAdmin):
     search_fields = ['geoid']
 
 class NeighborhoodAdmin(admin.OSMGeoAdmin):
@@ -20,6 +23,7 @@ class ListingAdmin(admin.OSMGeoAdmin):
     ]
     raw_id_fields = [
         'zipcode',
+        'tract',
         'block_group',
         'neighborhood',
     ]
@@ -47,6 +51,7 @@ class ReviewAdmin(admin.ModelAdmin):
     ]
 
 admin.site.register(Zipcode, ZipcodeAdmin)
+admin.site.register(Tract, TractAdmin)
 admin.site.register(BlockGroup, BlockGroupAdmin)
 admin.site.register(Neighborhood, NeighborhoodAdmin)
 admin.site.register(Listing, ListingAdmin)

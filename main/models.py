@@ -5,27 +5,6 @@ from django.db.models.functions import Cast, Greatest
 from pg_utils import Seconds
 SECONDS_PER_YEAR = 3.154e+7
 
-class Zipcode(models.Model):
-    geoid = models.CharField(max_length=5)
-    land_area = models.FloatField() # in m^2
-    water_area = models.FloatField() # in m^2
-    mpoly = models.MultiPolygonField(spatial_index=True)
-    fixed_data = JSONField(default=dict)
-    def __str__(self):
-        return self.zipcode
-    @property
-    def zipcode(self):
-        return self.geoid
-
-class BlockGroup(models.Model):
-    geoid = models.CharField(max_length=12)
-    land_area = models.FloatField() # in m^2
-    water_area = models.FloatField() # in m^2
-    mpoly = models.MultiPolygonField(spatial_index=True)
-    fixed_data = JSONField(default=dict)
-    def __str__(self):
-        return self.geoid
-
 class Neighborhood(models.Model):
     name = models.CharField(max_length=512, unique=True)
     mpoly = models.MultiPolygonField(spatial_index=True)
@@ -63,6 +42,40 @@ class Neighborhood(models.Model):
                 avg_host_exp=Avg(Seconds(F('last_scraped') - F('host_since'))) / SECONDS_PER_YEAR)['avg_host_exp'],
         }
         self.save()
+
+class Zipcode(models.Model):
+    geoid = models.CharField(max_length=5)
+    land_area = models.FloatField() # in m^2
+    water_area = models.FloatField() # in m^2
+    mpoly = models.MultiPolygonField(spatial_index=True)
+    fixed_data = JSONField(default=dict)
+    def __str__(self):
+        return self.zipcode
+    @property
+    def zipcode(self):
+        return self.geoid
+
+class BlockGroup(models.Model):
+    geoid = models.CharField(max_length=12)
+    land_area = models.FloatField() # in m^2
+    water_area = models.FloatField() # in m^2
+    mpoly = models.MultiPolygonField(spatial_index=True)
+    centroid = models.PointField(null=True)
+    neighborhood = models.ForeignKey(Neighborhood, null=True)
+    fixed_data = JSONField(default=dict)
+    def __str__(self):
+        return self.geoid
+
+class Tract(models.Model):
+    geoid = models.CharField(max_length=12)
+    land_area = models.FloatField() # in m^2
+    water_area = models.FloatField() # in m^2
+    mpoly = models.MultiPolygonField(spatial_index=True)
+    centroid = models.PointField(null=True)
+    neighborhood = models.ForeignKey(Neighborhood, null=True)
+    fixed_data = JSONField(default=dict)
+    def __str__(self):
+        return self.geoid
 
 class Crime(models.Model):
     # Geo fields
@@ -107,6 +120,7 @@ class Listing(models.Model):
     # Geo fields
     neighborhood = models.ForeignKey(Neighborhood, db_index=True, null=True)
     zipcode = models.ForeignKey(Zipcode, db_index=True, null=True)
+    tract = models.ForeignKey(Tract, db_index=True, null=True)
     block_group = models.ForeignKey(BlockGroup, db_index=True, null=True)
     point = models.PointField(spatial_index=True)
     # Data fields
