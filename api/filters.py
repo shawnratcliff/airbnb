@@ -36,7 +36,10 @@ def random_sample(queryset, n):
     Returns a random sample of the queryset, up to the max sample size of n.
     (If n < N, N records will be returned.)
     """
-    return queryset.order_by('?')[:n]
+    if queryset.model.__name__ == 'Listing':
+        return queryset.order_by('random')[:n] # use pre-indexed random int field
+    else:
+        return queryset.order_by('?')[:n]
 
 from collections import OrderedDict
 sample_stats = OrderedDict({
