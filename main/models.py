@@ -3,7 +3,12 @@ from django.contrib.postgres.fields import JSONField
 from django.db.models import Avg, Sum, F, FloatField
 from django.db.models.functions import Cast, Greatest
 from pg_utils import Seconds
+from random import randint
+
 SECONDS_PER_YEAR = 3.154e+7
+
+def rand_num():
+    return randint(0, 100000000)
 
 class Neighborhood(models.Model):
     name = models.CharField(max_length=512, unique=True)
@@ -116,6 +121,7 @@ class Amenity(models.Model):
 
 class Listing(models.Model):
     id = models.BigIntegerField(primary_key=True)
+    random = models.IntegerField(default=rand_num, db_index=True) # Random num for fast shuffling
     name = models.TextField()
     # Geo fields
     neighborhood = models.ForeignKey(Neighborhood, db_index=True, null=True)
