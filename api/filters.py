@@ -3,7 +3,11 @@ Functions for processing of Airbnb filter arguments.
 """
 
 from ast import literal_eval
-from django.db.models import Q
+
+from django.db.models import Q, ExpressionWrapper, FloatField
+from django.db.models.aggregates import Count
+from main.models import Neighborhood, Listing
+import json
 
 def get_filter_query(filters, geom_name='point'):
     """
@@ -40,6 +44,8 @@ def random_sample(queryset, n):
         return queryset.order_by('random')[:n] # use pre-indexed random int field
     else:
         return queryset.order_by('?')[:n]
+
+
 
 from collections import OrderedDict
 sample_stats = OrderedDict({
@@ -108,7 +114,7 @@ sample_stats = OrderedDict({
             'value': 4531,
             'comp_total': 26070
         },
-        'property_type_distribution': {
+        'room_type_distribution': {
             'meta': 'Arrays indexed as: [0] Entire home/apt, [1] Private room, [2] Shared room. ',
             'value': [0.2962, 0.5738, 0.1299],
             'comp_avg': [0.5822, 0.3680, 0.04975]

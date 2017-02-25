@@ -18,6 +18,7 @@ from django.db.models.functions import Greatest, Cast
 from django.contrib.gis.db.models.functions import AsGeoJSON
 from api.serializers import NeighborhoodSerializer, ListingListSerializer, ListingDetailSerializer, AmenitySerializer
 from api.filters import get_filter_query, random_sample
+from api.stats import get_stats
 
 class FilterableViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     """
@@ -53,6 +54,16 @@ class FilterableViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewse
             queryset = self.get_queryset()
         serializer = self.get_serializer_class()(queryset, many=True)
         return Response(serializer.data)
+
+    @list_route(methods=['get', 'post'])
+    @csrf_exempt
+    def stats(self, request):
+        if 'filters' in request.data.keys():
+            filters = request.data['filters']
+            queryset = self.get_queryset().filter(get_filter_query(filters))
+        else:
+            queryset = self.get_queryset()
+        return Response(get_stats(queryset))
 
 class ListingViewSet(FilterableViewSet):
     list_queryset = Listing.objects.annotate(geometry=AsGeoJSON('point'))
