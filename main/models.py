@@ -30,8 +30,12 @@ class Neighborhood(models.Model):
             None if num_listings == 0
             else 2.0 * self.listing_set.aggregate(Avg('reviews_per_month'))['reviews_per_month__avg']
         )
+        crime_count = self.crime_set.count()
+        population = self.fixed_data['population_latimes_2000_census']
+        crimes_per_capita = crime_count/population if population and population > 0 else None
+
         self.computed_stats = {
-            'crime_count': self.crime_set.count(),
+            'crime_count': crime_count,
             'listing_count': self.listing_set.count(),
             'avg_listing_price': avg_listing_price,
             'avg_estimated_bookings_per_listing_per_month': avg_estimated_bookings_per_listing_per_month,
@@ -45,6 +49,7 @@ class Neighborhood(models.Model):
             ),
             'avg_host_experience_years': self.listing_set.aggregate(
                 avg_host_exp=Avg(Seconds(F('last_scraped') - F('host_since'))) / SECONDS_PER_YEAR)['avg_host_exp'],
+            'crimes_per_capita': crimes_per_capita
         }
         self.save()
 
