@@ -29,7 +29,7 @@ def _get_discriminating_terms(queryset, queryset_all):
     for l in chain(queryset, excluded):
         # Generate a list of lists of tokens, excluding stop words
         all_docs.append(filter(
-            lambda w: w not in STOP_WORDS,
+            lambda w: w not in STOP_WORDS and len(w) > 1,
             preprocess_text(
                 l.description,
                 lowercase=True,
