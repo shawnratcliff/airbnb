@@ -7,18 +7,15 @@ from main.models import (
     Crime
 )
 from rest_framework import viewsets
-from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.decorators import detail_route, list_route
 from rest_framework import mixins
 from django.views.decorators.csrf import csrf_exempt
-
-from django.db.models import F, FloatField
-from django.db.models.functions import Greatest, Cast
 from django.contrib.gis.db.models.functions import AsGeoJSON
 from api.serializers import NeighborhoodSerializer, ListingListSerializer, ListingDetailSerializer, AmenitySerializer
 from api.filters import get_filter_query, random_sample
 from api.stats import get_stats
+from django.core.cache import cache
 
 class FilterableViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     """
@@ -72,7 +69,11 @@ class ListingViewSet(FilterableViewSet):
     detail_serializer_class = ListingDetailSerializer
 
 class NeighborhoodViewSet(FilterableViewSet):
-    list_queryset = Neighborhood.objects.annotate(geometry=AsGeoJSON('mpoly'), center=AsGeoJSON('centroid')) # Annotate geometry because we're using a different serializer
+    list_queryset = cache.get_or_set(
+        'neighborhoods_with_geojson',
+        Neighborhood.objects.annotate(geometry=AsGeoJSON('mpoly'),
+                                      center=AsGeoJSON('centroid')),
+        None)
     detail_queryset = list_queryset
     list_serializer_class = NeighborhoodSerializer
     detail_serializer_class = NeighborhoodSerializer
