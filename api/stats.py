@@ -1,7 +1,8 @@
 from django.db.models import F, Q, Expression, ExpressionWrapper, FloatField
 from django.db.models.aggregates import Count
 from main.models import Neighborhood, Listing
-import textacy
+from textacy import preprocess_text
+from textacy.keyterms import most_discriminating_terms
 from itertools import chain
 import pandas as pd
 import numpy as np
@@ -29,7 +30,7 @@ def _get_discriminating_terms(queryset, queryset_all):
         # Generate a list of lists of tokens, excluding stop words
         all_docs.append(filter(
             lambda w: w not in STOP_WORDS,
-            textacy.preprocess_text(
+            preprocess_text(
                 l.description,
                 lowercase=True,
                 no_punct=True,
@@ -39,7 +40,7 @@ def _get_discriminating_terms(queryset, queryset_all):
         bools.append(l in queryset)
 
     # Train model and output results
-    return textacy.keyterms.most_discriminating_terms(terms_lists=all_docs, bool_array_grp1=bools, top_n_terms=20)[0]
+    return most_discriminating_terms(terms_lists=all_docs, bool_array_grp1=bools, top_n_terms=20)[0]
 
 def _get_val_or_none(neighborhood_id, column):
     """
