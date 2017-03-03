@@ -8,10 +8,12 @@ import pandas as pd
 import numpy as np
 import pickle
 from api.filters import random_sample
+from os import path
+from airbnb.settings import BASE_DIR
 
-STOP_WORDS = pickle.load(open('pickles/stopwords.p', 'rb'))
-NEIGHBORHOOD_DATA = pickle.load(open('pickles/neighborhood_data.p', 'rb'))
-TRACT_DATA = pickle.load(open('pickles/census_data.p', 'rb'))['dataframe'] # df is inside an outer obj here
+STOP_WORDS = pickle.load(open(path.join(BASE_DIR, 'pickles/stopwords.p'), 'rb'))
+NEIGHBORHOOD_DATA = pickle.load(open(path.join(BASE_DIR, 'pickles/neighborhood_data.p'), 'rb'))
+TRACT_DATA = pickle.load(open(path.join(BASE_DIR,'pickles/census_data.p'), 'rb'))['dataframe'] # df is inside an outer obj here
 
 def _get_discriminating_terms(queryset, queryset_all):
     if queryset.count() == 0 or queryset.count() == queryset_all.count():
