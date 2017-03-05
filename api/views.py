@@ -7,6 +7,7 @@ from main.models import (
     Crime
 )
 from rest_framework import viewsets
+from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import detail_route, list_route
 from rest_framework import mixins
@@ -15,6 +16,7 @@ from django.contrib.gis.db.models.functions import AsGeoJSON
 from api.serializers import NeighborhoodSerializer, ListingListSerializer, ListingDetailSerializer, AmenitySerializer
 from api.filters import get_filter_query, random_sample
 from api.stats import get_stats
+from api.predict import predict_price
 from django.core.cache import cache
 
 class FilterableViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
@@ -81,3 +83,15 @@ class NeighborhoodViewSet(FilterableViewSet):
 class AmenityViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Amenity.objects.all()
     serializer_class = AmenitySerializer
+
+class PredictPriceView(APIView):
+    """
+    View to get price prediction.
+
+    """
+    @csrf_exempt
+    def post(self, request, format=None):
+        if 'listing_attrs' in request.data:
+            return Response(predict_price(request.data['listing_attrs']))
+        else:
+            return Response('Error: No listing attributes were submitted.')

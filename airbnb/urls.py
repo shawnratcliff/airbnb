@@ -29,5 +29,6 @@ router.register(r'amenities', views.AmenityViewSet, base_name="amenities")
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^api/', include(router.urls)),
+    url(r'^api/predict/', views.PredictPriceView.as_view(), name="predict"),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 ]
