@@ -65,11 +65,13 @@ def predict_price(listing_attrs):
     property_type_le = PRICE_MODEL['property_type_le']
     room_type_le = PRICE_MODEL['room_type_le']
     bed_type_le = PRICE_MODEL['bed_type_le']
+    cancellation_policy_le = PRICE_MODEL['cancellation_policy_le']
 
-    # Apply LabelEncoder transformations
+    # Apply LabelEncoder transformations to categorical columns
     df['property_type'] = property_type_le.transform(df.property_type)
     df['room_type'] = room_type_le.transform(df.room_type)
     df['bed_type'] = bed_type_le.transform(df.bed_type)
+    df['cancellation_policy'] = cancellation_policy_le.transform(df.cancellation_policy)
 
     # Drop extraneous columns
     df.drop(['block_group_id', 'estimated_revenue_per_month',
