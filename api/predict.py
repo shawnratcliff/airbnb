@@ -5,12 +5,32 @@ from airbnb.settings import BASE_DIR
 from os import path
 from django.contrib.gis.geos import Point
 import geocoder
+from treeinterpreter import treeinterpreter as ti
+from collections import defaultdict
 
 # Load dataframes
 PRICE_MODEL = pickle.load(open(path.join(BASE_DIR, 'pickles/price_model_with_extras.p'), 'rb'))
 TRACT_DATA = pickle.load(open(path.join(BASE_DIR, 'pickles/census_data_ml.p'), 'rb'))
 MEDIAN_LISTING_DATA = pickle.load(open(path.join(BASE_DIR, 'pickles/median_listing_data_ml.p'), 'rb'))
 LISTING_COLUMNS = pickle.load(open(path.join(BASE_DIR, 'pickles/listing_columns_ml.p'), 'rb'))
+
+# Define groups of explanatory variables for contribution analysis
+CATEGORIES = {
+    'demographics': ['B01003_001E', 'percent_age_0_17', 'percent_age_18_34', 'percent_age_35_49', 'percent_age_50_64',
+        'percent_age_65_up', 'percent_bachelors_degree', 'percent_masters_degree', 'percent_associate_degree',
+        'percent_bachelors_or_higher', 'percent_doctoral_degree', 'percent_professional_degree'],
+    'economics': ['B19301_001E', 'B25001_001E', 'B25064_001E', 'percent_homes_vacant'],
+    'amenities': [c for c in LISTING_COLUMNS if c.startswith('amenity_')],
+    'location': ['latitude', 'longitude'],
+    'miscellaneous': ['review_count', 'extra_people', 'guests_included', 'cancellation_policy', 'host_experience_days',
+        'minimum_nights'],
+    'listing_type': ['room_type', 'property_type'],
+    'bedrooms': ['bedrooms',],
+    'availability': ['availability_365'],
+    'maximum_occupancy': ['accommodates'],
+    'bathrooms': ['bathrooms'],
+}
+
 
 # Drop irrelevant TRACT_DATA columns
 drop_columns = [c for c in TRACT_DATA.columns
@@ -40,6 +60,22 @@ def resolve_address(address):
 
     # Return the data
     return {'latitude': g.lat, 'longitude': g.lng, 'tract_id': tract.id}
+
+
+def analyze_contributions(contributions):
+    """
+    Input: list of tuples, e.g. [('bedrooms', -49.5352),]
+    Output: list of tuples, aggregated by category, sorted by absolute contrib value
+    """
+    # Aggregate by category
+    aggregated = defaultdict(float) # Initialize each new key to 0.0 on first access attempt
+    for variable, contribution in contributions:
+        for category in CATEGORIES.keys():
+            if variable in CATEGORIES[category]:
+                aggregated[category] += contribution
+
+    # Return as list of tuples ordered by absolute-value contribution
+    return sorted(aggregated.items(), key=lambda x: -abs(x[1]))
 
 
 def predict_price(listing_attrs):
@@ -80,6 +116,20 @@ def predict_price(listing_attrs):
 
     # Predict
     X = df.iloc[0].values.reshape(1,-1)
-    y_predicted = model.predict(X)[0]
+    y_predicted, bias, contributions = ti.predict(model, X)
 
-    return { 'predicted_price': y_predicted }
+    # Unpack 1-element lists
+    y_predicted = y_predicted[0]
+    bias = bias[0]
+    contributions = contributions[0]
+
+    # Combine the float values with corresponding columns
+    contributions = zip(df.columns, contributions)
+
+    # Aggregate the contributions over categories
+    contributions = analyze_contributions(contributions)
+
+    return { 'prediction': y_predicted, 'bias': bias, 'contributions': contributions }
+
+
+
