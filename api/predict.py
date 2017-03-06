@@ -22,7 +22,7 @@ CATEGORIES = {
     'economics': ['B19301_001E', 'B25001_001E', 'B25064_001E', 'percent_homes_vacant'],
     'amenities': [c for c in LISTING_COLUMNS if c.startswith('amenity_')],
     'location': ['latitude', 'longitude'],
-    'miscellaneous': ['review_count', 'extra_people', 'guests_included', 'cancellation_policy', 'host_experience_days',
+    'miscellaneous': ['review_count', 'cancellation_policy', 'host_experience_days',
         'minimum_nights'],
     'listing_type': ['room_type', 'property_type'],
     'bedrooms': ['bedrooms',],
