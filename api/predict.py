@@ -16,12 +16,12 @@ LISTING_COLUMNS = pickle.load(open(path.join(BASE_DIR, 'pickles/listing_columns_
 
 # Define groups of explanatory variables for contribution analysis
 CATEGORIES = {
-    'demographics': ['B01003_001E', 'percent_age_0_17', 'percent_age_18_34', 'percent_age_35_49', 'percent_age_50_64',
-        'percent_age_65_up', 'percent_bachelors_degree', 'percent_masters_degree', 'percent_associate_degree',
-        'percent_bachelors_or_higher', 'percent_doctoral_degree', 'percent_professional_degree'],
-    'economics': ['B19301_001E', 'B25001_001E', 'B25064_001E', 'percent_homes_vacant'],
     'amenities': [c for c in LISTING_COLUMNS if c.startswith('amenity_')],
-    'location': ['latitude', 'longitude'],
+    'location': ['latitude', 'longitude', 'demographics', 'B01003_001E', 'percent_age_0_17', 'percent_age_18_34',
+                 'percent_age_35_49', 'percent_age_50_64', 'percent_age_65_up', 'percent_bachelors_degree',
+                 'percent_masters_degree', 'percent_associate_degree', 'percent_bachelors_or_higher',
+                 'percent_doctoral_degree', 'percent_professional_degree', 'B19301_001E', 'B25001_001E', 'B25064_001E',
+                 'percent_homes_vacant'],
     'miscellaneous': ['review_count', 'cancellation_policy', 'host_experience_days',
         'minimum_nights'],
     'listing_type': ['room_type', 'property_type'],
