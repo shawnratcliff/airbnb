@@ -22,8 +22,7 @@ CATEGORIES = {
                  'percent_masters_degree', 'percent_associate_degree', 'percent_bachelors_or_higher',
                  'percent_doctoral_degree', 'percent_professional_degree', 'B19301_001E', 'B25001_001E', 'B25064_001E',
                  'percent_homes_vacant'],
-    'miscellaneous': ['review_count', 'cancellation_policy', 'host_experience_days',
-        'minimum_nights'],
+    'miscellaneous': ['cancellation_policy', 'host_experience_days', 'minimum_nights'],
     'listing_type': ['room_type', 'property_type'],
     'bedrooms': ['bedrooms',],
     'availability': ['availability_365'],
@@ -48,7 +47,7 @@ def resolve_address(address):
     if g.ok:
         point = Point(x=g.lng, y=g.lat, srid=4326)
     else:
-        return {'error': 'The address could not be geocoded.'}
+        return {'error': 'Sorry, we couldn\'t understand that address. Please try again.'}
 
     # Check that the address is within a tract and neighborhood in our data
     try:
@@ -56,7 +55,15 @@ def resolve_address(address):
         assert tract
         assert tract.neighborhood
     except AssertionError as e:
-        return {'error': 'This app is currently limited to Los Angeles County. Please try another address.'}
+        return {'error': 'Sorry, this app is currently limited to Los Angeles County.'}
+
+    # Check that census data isn't missing for this location
+    try:
+        has_null = TRACT_DATA[TRACT_DATA.tract_id == tract.id].isnull().any(axis=1).iloc[0]
+        assert not has_null
+    except AssertionError as e:
+        return {'error': "Sorry, we can't process that address because of Census data suppression "
+                         "at that location."}
 
     # Return the data
     return {'latitude': g.lat, 'longitude': g.lng, 'tract_id': tract.id}
@@ -112,7 +119,7 @@ def predict_price(listing_attrs):
     # Drop extraneous columns
     df.drop(['block_group_id', 'estimated_revenue_per_month',
              'id', 'neighborhood_id', 'price', 'reviews_per_month',
-             'tract_id', 'zipcode_id'], axis=1, inplace=True)
+             'tract_id', 'zipcode_id', 'review_count'], axis=1, inplace=True)
 
     # Predict
     X = df.iloc[0].values.reshape(1,-1)
