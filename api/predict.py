@@ -1,5 +1,6 @@
-from main.models import Neighborhood, Tract
+from main.models import Listing, Neighborhood, Tract
 import pandas as pd
+import numpy as np
 import pickle
 from airbnb.settings import BASE_DIR
 from os import path
@@ -13,6 +14,7 @@ PRICE_MODEL = pickle.load(open(path.join(BASE_DIR, 'pickles/price_model_with_ext
 TRACT_DATA = pickle.load(open(path.join(BASE_DIR, 'pickles/census_data_ml.p'), 'rb'))
 MEDIAN_LISTING_DATA = pickle.load(open(path.join(BASE_DIR, 'pickles/median_listing_data_ml.p'), 'rb'))
 LISTING_COLUMNS = pickle.load(open(path.join(BASE_DIR, 'pickles/listing_columns_ml.p'), 'rb'))
+SIMILAR_LISTINGS = pickle.load(open('pickles/similar_listings.p', 'rb'))
 
 # Define groups of explanatory variables for contribution analysis
 CATEGORIES = {
@@ -85,6 +87,41 @@ def analyze_contributions(contributions):
     return sorted(aggregated.items(), key=lambda x: -abs(x[1]))
 
 
+def get_similar_listings(key, top_n=5):
+    """
+    Gets n most similar listings.
+    :param key: array used to generate prediction
+    :param top_n: number of sims to produce
+    :return: list of dicts containing listing info
+    """
+    # Unpack stuff from similar listings object
+    scaler = SIMILAR_LISTINGS['scaler']
+    listing_lookup_df = SIMILAR_LISTINGS['listing_lookup_df']
+    all_listings_scaled = SIMILAR_LISTINGS['all_listings_scaled']
+    # weights = SIMILAR_LISTINGS['weights']
+    weights = 1.0 # turns out, the learned weights weren't good for finding similar properties!
+
+    # Transform the search key and remake it as a Pandas Series
+    key = pd.Series(scaler.transform(key.values.reshape(1,-1))[0], index=key.index)
+
+    # Compute weighted Euclidian distance btw key and all_listings_scaled
+    diffs = (all_listings_scaled * weights) - (key * weights)
+    dists = pd.DataFrame(np.sum(np.square(diffs), axis=1), columns=['distance'], index=all_listings_scaled.index)
+    index_vals = dists.sort_values('distance').index[:top_n]
+    sim_ids = [listing_lookup_df.get_value(idx, 'id') for idx in index_vals]
+    sim_list = []
+    for sim_id in sim_ids:
+        listing = Listing.objects.get(id=sim_id)
+        url = 'https://www.airbnb.com/rooms/%d' % listing.id
+        sim_list.append({'name': listing.name,
+                         'price': '$%.0f' % listing.price,
+                         'neighborhood': listing.neighborhood.name,
+                         'description': '%s...' % listing.description[:150]
+                            if len(listing.description) > 150 else listing.description,
+                         'url': url})
+    return sim_list
+
+
 def predict_price(listing_attrs):
     address_data = resolve_address(listing_attrs['address'])
 
@@ -136,7 +173,13 @@ def predict_price(listing_attrs):
     # Aggregate the contributions over categories
     contributions = analyze_contributions(contributions)
 
-    return { 'prediction': y_predicted, 'bias': bias, 'contributions': contributions }
+    # Get similar listings
+    similar_listings = get_similar_listings(key=df.iloc[0], top_n=5)
+
+    return { 'prediction': y_predicted,
+             'bias': bias,
+             'contributions': contributions,
+             'similar_listings': similar_listings }
 
 
 
