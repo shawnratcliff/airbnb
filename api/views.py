@@ -65,7 +65,10 @@ class FilterableViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewse
         return Response(get_stats(queryset))
 
 class ListingViewSet(FilterableViewSet):
-    list_queryset = Listing.objects.annotate(geometry=AsGeoJSON('point'))
+    list_queryset = cache.get_or_set(
+        'listings_with_geojson',
+        Listing.objects.annotate(geometry=AsGeoJSON('point')),
+        None)
     list_serializer_class = ListingListSerializer
     detail_queryset = Listing.objects.all()
     detail_serializer_class = ListingDetailSerializer

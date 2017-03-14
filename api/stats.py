@@ -22,8 +22,8 @@ def _get_discriminating_terms(queryset, queryset_all):
     excluded = queryset_all.exclude(id__in=queryset.values_list('id', flat=True))
 
     # Take a random sample of each
-    queryset = random_sample(queryset, 250)
-    excluded = random_sample(excluded, 100)
+    queryset = random_sample(queryset, 125)
+    excluded = random_sample(excluded, 125)
 
     # Build input features
     all_docs = list()
